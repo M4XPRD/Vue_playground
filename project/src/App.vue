@@ -1,12 +1,17 @@
 <template>
   <div class="app">
     <h1>Страница с постами</h1>
-    <my-button
+    <div class="app-buttons">
+      <my-button
       @click="showDialogue"
-      style="margin: 15px 0;"
     >
       Создать пост
     </my-button>
+    <my-select
+      v-model="selectedSort"
+      :options="sortOptions"
+    />
+    </div>
     <my-dialogue
       v-model:show="dialogueVisible"
     >
@@ -15,8 +20,8 @@
       />
     </my-dialogue>
     <post-list
+      :posts="sortedPosts"
       @remove="removePost"
-      :posts="posts"
       v-if="!arePostsLoading && !isLoadingError"
     />
     <h3 v-else-if="!isLoadingError">Идёт загрузка...</h3>
@@ -40,6 +45,12 @@ export default {
       dialogueVisible: false,
       arePostsLoading: false,
       isLoadingError: false,
+      selectedSort: '',
+      sortOptions: [
+        { value: 'title', name: 'По названию' },
+        { value: 'body', name: 'По описанию' },
+        { value: 'id', name: 'По id' },
+      ],
     };
   },
   methods: {
@@ -69,6 +80,18 @@ export default {
     this.isLoadingError = false;
     this.fetchUsers();
   },
+  computed: {
+    sortedPosts() {
+      if (this.selectedSort === 'id') {
+        const sortID = [...this.posts]
+          .sort((post1, post2) => post1.id - post2.id);
+        return sortID;
+      }
+      const sortElse = [...this.posts]
+        .sort((post1, post2) => post1[this.selectedSort]?.localeCompare(post2[this.selectedSort]));
+      return sortElse;
+    },
+  },
 };
 </script>
 
@@ -81,5 +104,11 @@ export default {
 
 .app {
   padding: 20px;
+}
+
+.app-buttons {
+  margin: 15px 0;
+  display: flex;
+  justify-content: space-between;
 }
 </style>
