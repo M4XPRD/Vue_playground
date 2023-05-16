@@ -27,6 +27,20 @@
     />
     <h3 v-else-if="!isLoadingError">Идёт загрузка...</h3>
     <h3 v-else>Ошибка загрузки, перезагрузите страницу</h3>
+    <div ref="observer" class="observer"></div>
+    <!-- <div class="page-wrapper">
+      <div
+        v-for="pageNumber in totalPages"
+        :key="pageNumber"
+        class="page"
+        :class="{
+          'current-page': pageNumber === page
+        }"
+        @click="changePage(pageNumber)"
+      >
+      {{ pageNumber }}
+      </div>
+    </div> -->
   </div>
 </template>
 
@@ -48,6 +62,9 @@ export default {
       isLoadingError: false,
       selectedSort: '',
       searchQuery: '',
+      page: 1,
+      limit: 10,
+      totalPages: 0,
       sortOptions: [
         { value: 'title', name: 'По названию' },
         { value: 'body', name: 'По описанию' },
@@ -66,10 +83,18 @@ export default {
     showDialogue() {
       this.dialogueVisible = true;
     },
-    async fetchUsers() {
+    // changePage(pageNumber) {
+    //   this.page = pageNumber;
+    // },
+    async fetchPosts() {
       try {
-        this.arePostsLoading = true;
-        const response = await axios.get('https://jsonplaceholder.typicode.com/posts?_limit=10');
+        const response = await axios.get('https://jsonplaceholder.typicode.com/posts', {
+          params: {
+            _page: this.page,
+            _limit: this.limit,
+          },
+        });
+        this.totalPages = Math.ceil(response.headers['x-total-count'] / this.limit);
         this.posts = response.data;
       } catch (e) {
         this.isLoadingError = true;
@@ -77,10 +102,38 @@ export default {
         this.arePostsLoading = false;
       }
     },
+    async loadMorePosts() {
+      try {
+        this.page += 1;
+        const response = await axios.get('https://jsonplaceholder.typicode.com/posts', {
+          params: {
+            _page: this.page,
+            _limit: this.limit,
+          },
+        });
+        this.totalPages = Math.ceil(response.headers['x-total-count'] / this.limit);
+        this.posts = [...this.posts, ...response.data];
+      } catch (e) {
+        this.isLoadingError = true;
+      }
+    },
   },
   mounted() {
     this.isLoadingError = false;
-    this.fetchUsers();
+    this.fetchPosts();
+    const options = {
+      rootMargin: '0px',
+      threshold: 1.0,
+    };
+    const callback = (entries) => {
+      const [observerEntry] = entries;
+      const loadedPagesLimit = this.page < this.totalPages;
+      if (observerEntry.isIntersecting && loadedPagesLimit) {
+        this.loadMorePosts();
+      }
+    };
+    const observer = new IntersectionObserver(callback, options);
+    observer.observe(this.$refs.observer);
   },
   computed: {
     sortedPosts() {
@@ -97,6 +150,11 @@ export default {
       return this.sortedPosts
         .filter((post) => post.title.toLowerCase().includes(this.searchQuery.toLowerCase()));
     },
+  },
+  watch: {
+    // page() {
+    //   this.fetchPosts();
+    // },
   },
 };
 </script>
@@ -116,5 +174,24 @@ export default {
   margin: 15px 0;
   display: flex;
   justify-content: space-between;
+}
+
+.page-wrapper {
+  display: flex;
+  margin-top: 15px;
+}
+
+.page {
+  border: 1px solid black;
+  padding: 10px;
+}
+
+.current-page {
+  border: 2px solid teal;
+}
+
+.observer {
+  height: 30px;
+  background: green;
 }
 </style>
