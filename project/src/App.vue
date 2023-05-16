@@ -46,8 +46,8 @@
 
 <script>
 import axios from 'axios';
-import PostList from '../components/PostList.vue';
-import PostForm from '../components/PostForm.vue';
+import PostList from './components/PostList.vue';
+import PostForm from './components/PostForm.vue';
 
 export default {
   components: {

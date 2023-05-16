@@ -1,5 +1,5 @@
 import { createApp } from 'vue';
-import components from '../components/UI';
+import components from './components/UI';
 import App from './App.vue';
 
 const app = createApp(App);
