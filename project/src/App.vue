@@ -17,9 +17,10 @@
     <post-list
       @remove="removePost"
       :posts="posts"
-      v-if="!arePostsLoading"
+      v-if="!arePostsLoading && !isLoadingError"
     />
-    <div v-else>Идёт загрузка...</div>
+    <h3 v-else-if="!isLoadingError">Идёт загрузка...</h3>
+    <h3 v-else>Ошибка загрузки, перезагрузите страницу</h3>
   </div>
 </template>
 
@@ -38,6 +39,7 @@ export default {
       posts: [],
       dialogueVisible: false,
       arePostsLoading: false,
+      isLoadingError: false,
     };
   },
   methods: {
@@ -57,13 +59,14 @@ export default {
         const response = await axios.get('https://jsonplaceholder.typicode.com/posts?_limit=10');
         this.posts = response.data;
       } catch (e) {
-        alert(e);
+        this.isLoadingError = true;
       } finally {
         this.arePostsLoading = false;
       }
     },
   },
   mounted() {
+    this.isLoadingError = false;
     this.fetchUsers();
   },
 };
