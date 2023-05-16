@@ -32,5 +32,8 @@ export default {
 </script>
 
 <style scoped>
-
+  select {
+    color: teal;
+    border: 1px solid teal;
+  }
 </style>
