@@ -1,7 +1,12 @@
 <template>
   <div>
     <h1>Страница с постами</h1>
-    <my-input v-model="searchQuery" placeholder="Поиск..."></my-input>
+    <my-input
+      v-focus
+      v-model="searchQuery"
+      placeholder="Поиск..."
+    >
+  </my-input>
     <div class="app-buttons">
       <my-button
       @click="showDialogue"
@@ -27,7 +32,7 @@
     />
     <h3 v-else-if="!isLoadingError">Идёт загрузка...</h3>
     <h3 v-else>Ошибка загрузки, перезагрузите страницу</h3>
-    <div ref="observer" class="observer"></div>
+    <div v-intersection="loadMorePosts" class="observer"></div>
     <!-- <div class="page-wrapper">
       <div
         v-for="pageNumber in totalPages"
@@ -121,19 +126,19 @@ export default {
   mounted() {
     this.isLoadingError = false;
     this.fetchPosts();
-    const options = {
-      rootMargin: '0px',
-      threshold: 1.0,
-    };
-    const callback = (entries) => {
-      const [observerEntry] = entries;
-      const loadedPagesLimit = this.page < this.totalPages;
-      if (observerEntry.isIntersecting && loadedPagesLimit) {
-        this.loadMorePosts();
-      }
-    };
-    const observer = new IntersectionObserver(callback, options);
-    observer.observe(this.$refs.observer);
+    // const options = {
+    //   rootMargin: '0px',
+    //   threshold: 1.0,
+    // };
+    // const callback = (entries) => {
+    //   const [observerEntry] = entries;
+    //   const loadedPagesLimit = this.page < this.totalPages;
+    //   if (observerEntry.isIntersecting && loadedPagesLimit) {
+    //     this.loadMorePosts();
+    //   }
+    // };
+    // const observer = new IntersectionObserver(callback, options);
+    // observer.observe(this.$refs.observer);
   },
   computed: {
     sortedPosts() {
