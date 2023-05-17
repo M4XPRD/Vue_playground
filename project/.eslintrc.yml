@@ -13,6 +13,8 @@ plugins:
   - vue
 rules:
   no-multi-spaces: error
+  no-param-reassign: off
+  max-len: off
   no-console: "off"
   semi:
     - error
